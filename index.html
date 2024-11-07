@@ -49,6 +49,18 @@
             position: relative;
         }
 
+        .dropdown > a::after {
+            content: '▼';
+            display: inline-block;
+            font-size: 0.8em;
+            margin-left: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown.active > a::after {
+            transform: rotate(180deg);
+        }
+
         .dropdown-content {
             display: none;
             position: absolute;
@@ -65,8 +77,11 @@
             display: block;
         }
 
-        .dropdown:hover .dropdown-content {
-            display: block;
+        /* Desktop-only hover behavior */
+        @media (min-width: 1201px) {
+            .dropdown:hover .dropdown-content {
+                display: block;
+            }
         }
 
         .dropdown-content a:hover {
@@ -112,6 +127,7 @@
                 position: static;
                 background: #555;
                 display: none;
+                margin-top: 0.5rem;
             }
 
             .dropdown.active .dropdown-content {
@@ -143,7 +159,7 @@
         <ul class="nav-links">
             <li><a href="#">Home</a></li>
             <li class="dropdown">
-                <a href="#">Angebot</a>
+                <a href="#" class="dropdown-toggle">Angebot</a>
                 <div class="dropdown-content">
                     <a href="#">Webdesign</a>
                     <a href="#">Softwaredevelopment</a>
@@ -151,7 +167,7 @@
                 </div>
             </li>
             <li class="dropdown">
-                <a href="#">Über uns</a>
+                <a href="#" class="dropdown-toggle">Über uns</a>
                 <div class="dropdown-content">
                     <a href="#">Offene Stellen</a>
                     <a href="#">Geschichte</a>
@@ -165,6 +181,7 @@
         const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');
         const dropdowns = document.querySelectorAll('.dropdown');
+        const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
 
         hamburger.addEventListener('click', () => {
             hamburger.classList.toggle('active');
@@ -172,16 +189,23 @@
         });
 
         // Mobile Dropdown Handling
-        dropdowns.forEach(dropdown => {
-            if (window.innerWidth <= 1200) {
-                dropdown.addEventListener('click', (e) => {
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent default link behavior
+                if (window.innerWidth <= 1200) {
+                    const dropdown = toggle.parentElement;
+                    
+                    // Toggle clicked dropdown
                     dropdown.classList.toggle('active');
-                    // Prevent other dropdowns from staying open
+                    
+                    // Close other dropdowns
                     dropdowns.forEach(d => {
-                        if (d !== dropdown) d.classList.remove('active');
+                        if (d !== dropdown) {
+                            d.classList.remove('active');
+                        }
                     });
-                });
-            }
+                }
+            });
         });
 
         // Close mobile menu when clicking outside
@@ -191,6 +215,14 @@
                 hamburger.classList.remove('active');
                 dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
             }
+        });
+
+        // Prevent dropdown content clicks from closing the dropdown
+        const dropdownContents = document.querySelectorAll('.dropdown-content');
+        dropdownContents.forEach(content => {
+            content.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
         });
 
         // Update dropdown behavior on window resize
